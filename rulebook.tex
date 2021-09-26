@@ -1,0 +1,79 @@
+\documentclass[ebook,10pt,oneside,openany,final]{memoir}
+
+\usepackage{ctex}
+\usepackage{geometry}
+\usepackage{titlesec}
+\usepackage[
+    colorlinks,
+    linkcolor=black,
+]{hyperref}
+\usepackage{ifthen}
+\usepackage{xifthen}
+\usepackage{enumitem}
+\usepackage{indentfirst}
+
+\geometry{left=1cm, right=1cm, top=2cm, bottom=2cm}
+
+\titleformat{\chapter}{\raggedright\Huge\bfseries}{\thechapter\quad}{0pt}{}
+
+\newpagestyle{main}{
+    \sethead{\chaptertitle}{}{\thepage}
+}
+
+\pagestyle{main}
+
+\setlength{\parskip}{1em}
+
+\setenumerate[1]{itemsep=0pt,partopsep=0pt,parsep=0pt,topsep=0pt}
+\setitemize[1]{itemsep=0pt,partopsep=0pt,parsep=0pt,topsep=0pt}
+\setdescription{itemsep=0pt,partopsep=0pt,parsep=0pt,topsep=0pt}
+
+\newcommand{\term}[1]{\emph{#1}}
+\newcommand{\card}[2][]{#2}
+
+\newcommand{\example}{\par\vspace{-\parskip}\noindent\emph{例如}\quad}
+\newcommand{\notice}{\par\vspace{-\parskip}\noindent\emph{注意}\quad}
+\newcommand{\exception}{\par\vspace{-\parskip}\noindent\emph{例外}\quad}
+\newcommand{\history}{\par\vspace{-\parskip}\noindent\emph{历史}\quad}
+
+\newcommand{\version}[2]{
+    \ifthenelse{\isempty{#1}}{
+        \ifthenelse{\isempty{#2}}
+            {\emph{未知版本}}
+            {\emph{版本$<$#2}}
+    }{
+        \ifthenelse{\isempty{#2}}
+            {\emph{版本$\geq$#1}}
+            {\emph{版本#1$\sim$#2}}
+    }
+}
+
+\title{炉石传说进阶规则集}
+\author{}
+
+\begin{document}
+
+\maketitle
+\clearpage
+
+\frontmatter
+\tableofcontents
+\clearpage
+
+\mainmatter
+\hypersetup{linkcolor=blue}
+
+\setcounter{secnumdepth}{-2}
+\include{foreword}
+\include{convention}
+
+\setcounter{secnumdepth}{1}
+\include{basic-concept}
+\include{player-action}
+\include{order-cond}
+\include{other-mech}
+\include{rule-detail}
+\include{rule-update}
+\include{other}
+
+\end{document}

@@ -1,0 +1,37 @@
+\chapter{约定}
+
+\begin{itemize}
+    \item 在不产生歧义的情况下，「你受到伤害」「你恢复生命值」「你的生命值/攻击力」等描述中的你均指你的英雄。
+    \item 使用\version{X}{}\version{}{Y}\version{X}{Y}表示某条目有意义的时候的游戏版本。X和Y只会是某个发生更改的版本，而不会记录该条目最初出现的版本。由于测试的不完善，X和Y通常是第一次发现该现象时的游戏版本。此外，如果X或Y是某个扩展的缩写（例如GvG或KNC），则指的是该扩展经历的各版本中的某个未知版本。如果X或Y是「早期版本」，则指的是某个较早但未知的版本。
+    \item 使用\texttt{e.t}表示实体\texttt{e}上的标签\texttt{t}。使用\texttt{e.t := v}表示「将实体\texttt{e}的标签\texttt{t}设置为\texttt{v}。如果\texttt{e}被省略，则表示实体是唯一的或者显然的。此外，还有一些特殊词语表示特殊的实体：\\
+        \begin{center}
+            \begin{tabular}{|c|c|}
+                \hline
+                \texttt{Game} & 游戏实体 \\
+                \hline
+                \texttt{Player} & 玩家实体 \\
+                \hline
+                \texttt{Hero} & 英雄实体 \\
+                \hline
+            \end{tabular}
+        \end{center}
+\end{itemize}
+
+在例子中，若无说明，遵循如下约定：
+
+\begin{itemize}
+    \item 所有随从和武器都是初始身材和费用。
+    \item 双方英雄的生命值足够高。
+    \item 没有额外的随从、武器、任务和奥秘。
+    \item 所有人的手牌与牌库中的卡牌都对例子无影响。
+    \item 所有人的手牌与牌库的数量无关紧要。手牌的上限为十张。
+    \item 如果没有描述你操控的随从具体信息，则这些随从的效果与攻击力无关紧要，并且生命值足够高。
+\end{itemize}
+
+对于描述「某玩家操控A、B、C」而言，若无说明，遵循如下约定：
+
+\begin{itemize}
+    \item A、B、C 的入场顺序与描述顺序相同。
+    \item A、B、C 的场上位置无关紧要。
+    \item 不同玩家之间实体的入场顺序无关紧要。
+\end{itemize}
