@@ -26,7 +26,11 @@
 \setitemize[1]{itemsep=0pt,partopsep=0pt,parsep=0pt,topsep=0pt}
 \setdescription{itemsep=0pt,partopsep=0pt,parsep=0pt,topsep=0pt}
 
-\makeindex[name=termindex,title=术语表,intoc]
+\makeatletter
+\def\imki@progdefault{zhmakeindex}
+\makeatother
+
+\makeindex[name=termindex,title=术语表,intoc,options={-s zh.ist}]
 
 \newcommand{\termindex}[1]{\index[termindex]{#1}}
 
