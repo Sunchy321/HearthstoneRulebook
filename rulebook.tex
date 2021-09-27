@@ -3,6 +3,7 @@
 \usepackage{ctex}
 \usepackage{geometry}
 \usepackage{titlesec}
+\usepackage{imakeidx}
 \usepackage[
     colorlinks,
     linkcolor=black,
@@ -14,14 +15,9 @@
 
 \geometry{left=1cm, right=1cm, top=2cm, bottom=2cm}
 
-% \setCJKmainfont{PingFangSC-Regular}
-
 \titleformat{\chapter}{\raggedright\Huge\bfseries}{\thechapter\quad}{0pt}{}
 
-\newpagestyle{main}{
-    \sethead{\chaptertitle}{}{\thepage}
-}
-
+\newpagestyle{main}{\sethead{\chaptertitle}{}{\thepage}}
 \pagestyle{main}
 
 \setlength{\parskip}{1em}
@@ -30,7 +26,16 @@
 \setitemize[1]{itemsep=0pt,partopsep=0pt,parsep=0pt,topsep=0pt}
 \setdescription{itemsep=0pt,partopsep=0pt,parsep=0pt,topsep=0pt}
 
-\newcommand{\term}[1]{\emph{#1}}
+\makeindex[name=termindex,title=术语表,intoc]
+
+\newcommand{\termindex}[1]{\index[termindex]{#1}}
+
+\makeatletter
+\newcommand{\term}{\@ifstar{\@termpartial}{\@termfull}}
+\newcommand{\@termpartial}[1]{\emph{#1}}
+\newcommand{\@termfull}[1]{\emph{#1}\termindex{#1}}
+\makeatother
+
 \newcommand{\card}[2][]{#2}
 
 \newcommand{\example}{\par\vspace{-\parskip}\noindent\emph{例如}\quad}
@@ -77,5 +82,8 @@
 \include{rule-detail}
 \include{rule-update}
 \include{other}
+
+\backmatter
+\printindex[termindex]
 
 \end{document}
