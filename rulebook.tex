@@ -12,6 +12,7 @@
 \usepackage{xifthen}
 \usepackage{enumitem}
 \usepackage{indentfirst}
+\usepackage{pifont}
 
 \geometry{left=1cm, right=1cm, top=2cm, bottom=2cm}
 
@@ -31,6 +32,7 @@
 \makeatother
 
 \makeindex[name=termindex,title=术语表,intoc,options={-s zh.ist}]
+% \makeindex[name=termindex,title=术语表,intoc]
 
 \newcommand{\termindex}[1]{\index[termindex]{#1}}
 
@@ -49,15 +51,14 @@
 
 \newcommand{\version}[2]{
     \ifthenelse{\isempty{#1}}{
-        \ifthenelse{\isempty{#2}}
-            {\emph{未知版本}}
-            {\emph{版本$<$#2}}
+        \ifthenelse{\isempty{#2}}{\emph{未知版本}}{\emph{版本$<$#2}}
     }{
-        \ifthenelse{\isempty{#2}}
-            {\emph{版本$\geq$#1}}
-            {\emph{版本#1$\sim$#2}}
+        \ifthenelse{\isempty{#2}}{\emph{版本$\geq$#1}}{\emph{版本#1$\sim$#2}}
     }
 }
+
+\newcommand{\cmark}{\ding{51}}%
+\newcommand{\xmark}{\ding{55}}%
 
 \title{炉石传说进阶规则集}
 \author{}
