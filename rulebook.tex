@@ -4,16 +4,14 @@
 \usepackage{geometry}
 \usepackage{titlesec}
 \usepackage{imakeidx}
-\usepackage[
-    colorlinks,
-    linkcolor=black,
-]{hyperref}
+\usepackage[colorlinks,linkcolor=black]{hyperref}
 \usepackage{ifthen}
 \usepackage{xifthen}
 \usepackage{enumitem}
 \usepackage{indentfirst}
 \usepackage{pifont}
 \usepackage{tabularx}
+\usepackage[toc,nopostdot]{glossaries}
 
 \geometry{left=1cm, right=1cm, top=2cm, bottom=2cm}
 
@@ -41,9 +39,43 @@
 \newcommand{\term}{\@ifstar{\@termpartial}{\@termfull}}
 \newcommand{\@termpartial}[1]{\emph{#1}}
 \newcommand{\@termfull}[1]{\emph{#1}\termindex{#1}}
-\makeatother
 
-\newcommand{\card}[2][]{#2}
+\renewcommand*{\glstextformat}[1]{\textcolor{black}{#1}}
+\makeglossaries
+\newwrite\missingcard
+
+\newcommand{\card@desc}[2]{%
+    \ifthenelse{\isempty{#1}}{#2}{\ifthenelse{\isempty{#2}}{#1}{#1\quad#2}}
+}
+
+\newcommand{\card@def}[5][]{%
+    \ifthenelse{\isempty{#1}}{%
+        \newglossaryentry{#2}{name={#3},description={\card@desc{#4}{#5}}}%
+    }{%
+        \newglossaryentry{#2}{name={#3},description={\card@desc{#4}{#5}},parent={#1}}%
+    }%
+    \@namedef{card@nametoid@#3}{#2}%
+}
+
+\input{card-defs}
+
+\newcommand{\card}[2][]{%
+    \ifthenelse{\isempty{#1}}{%
+        \@ifundefined{card@nametoid@#2}{%
+            \immediate\write\missingcard{#2}%
+        }{%
+            \gls{\@nameuse{card@nametoid@#2}}%
+        }%
+    }{%
+        \ifglsentryexists{#1}{%
+            \gls{#1}%
+        }{%
+            \immediate\write\missingcard{!#1}%
+        }
+    }%
+}
+
+\makeatother
 
 \newcommand{\example}{\par\vspace{-\parskip}\noindent\emph{例如}\quad}
 \newcommand{\notice}{\par\vspace{-\parskip}\noindent\emph{注意}\quad}
@@ -65,6 +97,8 @@
 \author{}
 
 \begin{document}
+
+\immediate\openout\missingcard=missing-cards.txt
 
 \maketitle
 \clearpage
@@ -94,5 +128,9 @@
 
 \backmatter
 \printindex[termindex]
+\setglossarystyle{tree}
+\printglossary[title=卡牌效果列表]
+
+\immediate\closeout\missingcard
 
 \end{document}

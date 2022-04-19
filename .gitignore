@@ -275,4 +275,8 @@ TSWLatexianTemp*
 # Makeindex log files
 *.lpz
 
+node_modules
+
 .DS_Store
+card-defs.txt
+missing-cards.txt

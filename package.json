@@ -1,0 +1,20 @@
+{
+  "name": "rulebook",
+  "version": "1.0.0",
+  "description": "Hearthstone rulebook",
+  "main": "get-carddefs.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Sunchy321/HearthstoneRulebook.git"
+  },
+  "author": "Sunchy321",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Sunchy321/HearthstoneRulebook/issues"
+  },
+  "homepage": "https://github.com/Sunchy321/HearthstoneRulebook#readme",
+  "dependencies": {
+    "mongodb": "^4.5.0",
+    "xml-js": "^1.6.11"
+  }
+}
