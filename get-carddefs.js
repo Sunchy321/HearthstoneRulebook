@@ -81,14 +81,15 @@ const classMap = {
 };
 
 const raceMap = {
-    beast: '野兽',
-    demon: '恶魔',
-    dragon: '龙',
+    beast:     '野兽',
+    demon:     '恶魔',
+    dragon:    '龙',
     elemental: '元素',
-    mech: '机械',
-    murloc: '鱼人',
-    pirate: '海盗',
-    totem: '图腾',
+    mech:      '机械',
+    murloc:    '鱼人',
+    naga:      '娜迦',
+    pirate:    '海盗',
+    totem:     '图腾',
 };
 
 function sortBy(map) {
@@ -154,11 +155,16 @@ for (const c of cards) {
 async function run() {
     await client.connect();
 
+    const patches = await client.db('hearthstone').collection('patches');
+
+    const patchList = await patches.find().sort('number', -1).toArray();
+
     const entities = await client.db('hearthstone').collection('entities');
 
     const cardData = await entities.find({
         cardId: { $not: /^Story|Puzzle$/ },
         set: { $nin: setBlackList },
+        version: patchList[0].number,
         $or: [
             { cardId: { $in: cards.filter(c => c.id != null).map(c => c.id ) }},
             { 'localization.name': { $in: cards.filter(c => c.name != null).map(c => c.name ) }},
