@@ -9,8 +9,10 @@ const setMap = {
     van: '怀旧',
     legacy: '基本',
     basic: '基本',
+    skin: '基本',
     classic: '经典',
     core21: '核心2021',
+    core22: '核心2022',
     naxx: '纳克萨玛斯',
     gvg: '地精大战侏儒',
     brm: '黑石山',
@@ -35,15 +37,15 @@ const setMap = {
     mdf: '马戏团',
     fib: '贫瘠之地',
     uis: '暴风城',
-    alv: '奥特兰克',
-    tsc: '沉没之城',
+    fav: '奥特兰克',
+    vsc: '沉没之城',
+    mcn: '纳斯利亚堡',
     bgs: '酒馆战棋'
 };
 
 const setBlackList = [
     'mercenaries',
     'mission',
-    'skin',
     'tb',
     'tot',
 ];
@@ -69,6 +71,7 @@ const classMap = {
     warrior:      '战士',
     demon_hunter: '恶魔猎手',
     death_knight: '死亡骑士',
+    dream:        '梦境',
 
     'mage-rogue': '法贼双职业',
     'druid-shaman': '德萨双职业',
@@ -99,7 +102,9 @@ function sortBy(map) {
 }
 
 function parentOf(id) {
-    const m = /(e|t|t2)$/.exec(id);
+    if (id === 'GAME_005e') { return null; }
+
+    const m = /(e|t|t2|p)$/.exec(id);
 
     if (m == null) { return null; }
 
@@ -139,16 +144,22 @@ for (const line of missingcards.split('\n')) {
 }
 
 for (const c of cards) {
-    if (
-        c.id &&
-        (c.parent != null || parentOf(c.id)) &&
-        !cards.some(v => v.id === (c.parent || parentOf(c.id)))
-    ) {
+    if (c.id == null) {
+        continue;
+    }
+
+    const parent = c.parent ?? parentOf(c.id);
+
+    if (parent == null) {
+        continue;
+    }
+
+    if (!cards.some(v => v.id === parent)) {
         if (c.parent == null) {
-            c.parent = parentOf(c.id);
+            c.parent = parent;
         }
 
-        cards.push({ id: parentOf(c.parent) });
+        cards.push({ id: parent });
     }
 }
 
@@ -164,29 +175,40 @@ async function run() {
     const cardData = await entities.find({
         cardId: { $not: /^Story|Puzzle$/ },
         set: { $nin: setBlackList },
-        version: patchList[0].number,
+        versions: patchList[0].number,
         $or: [
             { cardId: { $in: cards.filter(c => c.id != null).map(c => c.id ) }},
-            { 'localization.name': { $in: cards.filter(c => c.name != null).map(c => c.name ) }},
+            { localization: {
+                $elemMatch: {
+                    lang: { $in: ['en', 'zhs'] },
+                    name: { $in: cards.filter(c => c.name != null).map(c => c.name ) },
+                }
+            }}
         ]
     });
 
-    const groups = { };
+    const result = [];
 
     // 生成卡牌定义TeX代码
     await cardData.forEach(c => {
         const loc = c.localization.find(c => c.lang === 'zhs');
 
         const id = c.cardId;
-        const classes = c.classes.join('-');
+        const set = c.set;
         const type = c.cardType;
-        const name = loc.name;
+        const classes = c.classes.join('-');
         const cost = c.cost || 0;
+        const name = loc.name;
         const text = (loc.text || '')
             .replace(/\n/g, ' ')
             .replace(/%/g, '\\%');
 
         const oldCardsWithName = cards.filter(v => v.name === name && v.isOld);
+
+        // 不包含状态
+        if (type === 'enchantment') {
+            return;
+        }
 
         // 一些同名牌被包括进来了，并且没有明确指定此id的牌
         if (
@@ -224,22 +246,40 @@ async function run() {
         const parent = cards.find(v => v.id === id)?.parent ?? parentOf(id);
 
         const value = {
-            id, parent, type, classes, cost,
+            id, parent, set, type, classes, cost,
             enName: c.localization.find(l => l.lang === 'en')[0]?.name ?? '',
             def: parent != null
                 ? `\\card@def[${escape(parent)}]{${escape(id)}}{${name}}{${brief}}{${text}}`
                 : `\\card@def{${escape(id)}}{${name}}{${brief}}{${text}}`
         }
 
-
-        if (groups[c.set] == null) {
-            groups[c.set] = [value];
-        } else {
-            groups[c.set].push(value);
-        }
+        result.push(value);
     })
 
     let carddefs = '';
+
+    const mainCards = [];
+    const derivedCards = [];
+
+    // 分离独立卡牌和衍生卡牌
+    for (let v of result) {
+        if (v.parent == null || cards.every(c => c.id !== v.parent)) {
+            mainCards.push(v);
+        } else {
+            derivedCards.push(v);
+        }
+    }
+
+    const groups = {};
+
+    // 按扩展包分组
+    for (let v of mainCards) {
+        if (groups[v.set] == null) {
+            groups[v.set] = [];
+        }
+
+        groups[v.set].push(v);
+    }
 
     const sorter = (a, b) => {
         const sortByClass = sortBy(classMap)(a.classes, b.classes);
@@ -256,27 +296,28 @@ async function run() {
 
     // 按扩展包排序
     for (let s of Object.keys(groups).sort(sortBy(setMap))) {
-        const g = groups[s];
-
         // 按类型、职业、费用排序
-        const mainCards = g.filter(
-            v => v.parent == null || g.every(u => u.id !== v.parent)
-        ).sort(sorter);
+        const g = groups[s].sort(sorter);
 
         carddefs += `% ${setMap[s] || s}\n`;
 
-        for (const v of mainCards) {
+        for (const v of g) {
             carddefs += v.def + '\n';
 
-            const children = g.filter(u => u.parent === v.id);
+            const children = derivedCards.filter(u => u.parent === v.id);
 
             for (const c of children) {
                 carddefs += c.def + '\n';
+                c.used = true;
             }
         }
 
         carddefs += '\n';
     }
+
+    console.log(
+        cards.filter(v => v.id === 'GILA_BOSS_35p' || v.name === '嗜血渴望')
+    )
 
     fs.writeFileSync('./card-defs.tex', carddefs.trim());
 
