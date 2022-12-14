@@ -40,6 +40,8 @@ const setMap = {
     fav: '奥特兰克',
     vsc: '沉没之城',
     mcn: '纳斯利亚堡',
+    mlk: '巫妖王',
+    poa: '阿尔萨斯之路',
     bgs: '酒馆战棋'
 };
 
@@ -93,6 +95,7 @@ const raceMap = {
     naga:      '娜迦',
     pirate:    '海盗',
     totem:     '图腾',
+    undead: '亡灵',
 };
 
 function sortBy(map) {
@@ -175,7 +178,7 @@ async function run() {
     const cardData = await entities.find({
         cardId: { $not: /^Story|Puzzle$/ },
         set: { $nin: setBlackList },
-        versions: patchList[0].number,
+        version: patchList[0].number,
         $or: [
             { cardId: { $in: cards.filter(c => c.id != null).map(c => c.id ) }},
             { localization: {
@@ -235,7 +238,7 @@ async function run() {
             }
 
             if (c.race) {
-                result += raceMap[c.race] || c.race;
+                result += c.race.map(r => raceMap[r] || r);
             } else {
                 result += typeMap[type] || type;
             }
@@ -247,11 +250,13 @@ async function run() {
 
         const value = {
             id, parent, set, type, classes, cost,
-            enName: c.localization.find(l => l.lang === 'en')[0]?.name ?? '',
+            enName: c.localization.find(l => l.lang === 'en')?.name ?? '',
             def: parent != null
                 ? `\\card@def[${escape(parent)}]{${escape(id)}}{${name}}{${brief}}{${text}}`
                 : `\\card@def{${escape(id)}}{${name}}{${brief}}{${text}}`
         }
+
+        console.log(c.localization.find(l => l.lang === 'zhs')?.name ?? '');
 
         result.push(value);
     })
@@ -314,10 +319,6 @@ async function run() {
 
         carddefs += '\n';
     }
-
-    console.log(
-        cards.filter(v => v.id === 'GILA_BOSS_35p' || v.name === '嗜血渴望')
-    )
 
     fs.writeFileSync('./card-defs.tex', carddefs.trim());
 
